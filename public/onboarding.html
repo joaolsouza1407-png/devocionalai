@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+  <html lang="pt-BR">
+  <head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>DevocionalAI - Ative seu acesso</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#0D0D0D;color:#F5F5F5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:#1C1C1C;border:1px solid rgba(201,168,76,0.3);border-radius:20px;padding:40px;max-width:480px;width:100%}
+h1{color:#C9A84C;text-align:center;margin-bottom:6px;font-size:1.4rem}
+  .sub{color:#A0A0A0;text-align:center;font-size:0.85rem;margin-bottom:28px}
+label{display:block;font-size:0.82rem;color:#A0A0A0;margin-bottom:6px;font-weight:600}
+input,select,textarea{width:100%;background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#F5F5F5;font-size:0.9rem;margin-bottom:16px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#C9A84C}
+  textarea{min-height:80px;resize:vertical}
+.btn{width:100%;background:#C9A84C;color:#0D0D0D;border:none;border-radius:50px;padding:15px;font-size:1rem;font-weight:800;cursor:pointer}
+.btn:disabled{opacity:0.6}
+#ok{display:none;text-align:center;padding:20px}
+  </style>
+  </head>
+  <body>
+  <div class="card">
+  <h1>DevocionalAI</h1>
+  <p class="sub">Complete seu perfil para ativar seu devocional</p>
+<div id="form">
+<label>Nome completo</label><input id="nome" type="text" placeholder="Maria Silva" required/>
+  <label>WhatsApp (com DDD)</label><input id="tel" type="tel" placeholder="11999999999" required/>
+  <label>Maior desafio agora</label>
+<select id="cat">
+<option value="">Selecione...</option>
+<option value="ansiedade">Ansiedade</option>
+  <option value="financeiro">Financeiro</option>
+  <option value="relacionamento">Relacionamento</option>
+  <option value="saude">Saude</option>
+  <option value="proposito">Proposito de vida</option>
+<option value="familia">Familia</option>
+<option value="trabalho">Trabalho</option>
+<option value="fe">Fe espiritual</option>
+  <option value="gratidao">Gratidao</option>
+  </select>
+  <label>Descreva seu momento (opcional)</label>
+  <textarea id="momento" placeholder="Ex: Estou passando por uma transicao..."></textarea>
+  <button class="btn" id="btn" onclick="enviar()">Ativar meu devocional</button>
+</div>
+<div id="ok"><div style="font-size:3rem;margin-bottom:12px">ok</div><h3>Ativado!</h3><p style="color:#A0A0A0;margin-top:8px">Amanha as 7h chega seu primeiro devocional no WhatsApp!</p></div>
+  </div>
+  <script>
+  const p=new URLSearchParams(location.search);
+if(p.get('nome'))document.getElementById('nome').value=decodeURIComponent(p.get('nome'));
+const email=p.get('email')||'';
+async function enviar(){
+const btn=document.getElementById('btn');
+btn.disabled=true;btn.textContent='Salvando...';
+try{
+const r=await fetch('/api/onboarding',{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({email,nome:document.getElementById('nome').value,
+  telefone:document.getElementById('tel').value,categoria:document.getElementById('cat').value,
+  momento:document.getElementById('momento').value})});
+const d=await r.json();
+if(r.ok&&d.success){document.getElementById('form').style.display='none';document.getElementById('ok').style.display='block';}
+else{alert('Erro: '+(d.error||'tente novamente'));btn.disabled=false;btn.textContent='Ativar meu devocional';}
+}catch(e){alert('Erro de conexao');btn.disabled=false;btn.textContent='Ativar meu devocional';}
+}
+</script>
+</body>
+</html>
