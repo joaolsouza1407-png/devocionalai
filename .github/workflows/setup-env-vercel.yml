@@ -2,60 +2,48 @@ name: Configurar Variaveis na Vercel
 
 on:
   workflow_dispatch:
-    inputs:
-      openai_key:
-        description: 'OPENAI_API_KEY (sua chave sk-...)'
-        required: true
-      zapi_instance:
-        description: 'ZAPI_INSTANCE_ID'
-        required: true
-      zapi_token:
-        description: 'ZAPI_TOKEN'
-        required: true
-      zapi_client_token:
-        description: 'ZAPI_CLIENT_TOKEN'
-        required: true
 
-jobs:
-  setup-env:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout codigo
-        uses: actions/checkout@v4
+  jobs:
+    setup-env:
+        runs-on: ubuntu-latest
+            steps:
+                  - name: Adicionar variaveis via REST API
+                          run: |
+                                    TOKEN="${{ secrets.VERCEL_TOKEN }}"
+                                              TEAM_SLUG="joaolsouza1407-pngs-projects"
+                                                        PROJECT_NAME="devocionalai"
 
-      - name: Instalar Vercel CLI
-        run: npm install -g vercel@latest
-
-      - name: Criar arquivo de link do projeto Vercel
-        run: |
-          mkdir -p .vercel
-          echo '{
-            "projectId": "JppMs0YHMiD2VD1P1HDSxDKQu16",
-            "orgId": "team_ufmPDNKNzrJehGbaKHioQG7p"
-          }' > .vercel/project.json
-          cat .vercel/project.json
-
-      - name: Adicionar variaveis de ambiente via Vercel CLI
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          add_var() {
-            echo "$2" | vercel env add "$1" production --token=$VERCEL_TOKEN --yes 2>&1 | tail -3
-          }
-          
-          echo "=== Configurando variaveis ==="
-          add_var SUPABASE_URL "${{ secrets.SUPABASE_URL }}"
-          add_var SUPABASE_KEY "${{ secrets.SUPABASE_KEY }}"
-          add_var OPENAI_API_KEY "${{ github.event.inputs.openai_key }}"
-          add_var WEBHOOK_SECRET "devo2026secret"
-          add_var CRON_SECRET "cron2026secret"
-          add_var ZAPI_INSTANCE_ID "${{ github.event.inputs.zapi_instance }}"
-          add_var ZAPI_TOKEN "${{ github.event.inputs.zapi_token }}"
-          add_var ZAPI_CLIENT_TOKEN "${{ github.event.inputs.zapi_client_token }}"
-          echo "=== Concluido! ==="
-
-      - name: Redeploy na Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          vercel --prod --token=$VERCEL_TOKEN --yes 2>&1 | tail -5
+                                                                  add_env_var() {
+                                                                              local key="$1"
+                                                                                          local value="$2"
+                                                                                                      echo "Adicionando: $key"
+                                                                                                                  RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+                                                                                                                                "https://api.vercel.com/v10/projects/${PROJECT_NAME}/env?teamId=${TEAM_SLUG}" \
+                                                                                                                                              -H "Authorization: Bearer ${TOKEN}" \
+                                                                                                                                                            -H "Content-Type: application/json" \
+                                                                                                                                                                          -d "{\"key\":\"${key}\",\"value\":\"${value}\",\"type\":\"encrypted\",\"target\":[\"production\",\"preview\",\"development\"]}")
+                                                                                                                                                                                      HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+                                                                                                                                                                                                  BODY=$(echo "$RESPONSE" | head -1)
+                                                                                                                                                                                                              echo "Status: $HTTP_CODE"
+                                                                                                                                                                                                                          echo "Response: $BODY"
+                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                              add_env_var "SUPABASE_URL" "https://jajpszbztgkxzevbcpon.supabase.co"
+                                                                                                                                                                                                                                                        add_env_var "SUPABASE_KEY" "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphanBzemJ6dGdreHpldmJjcG9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3Njc5MjUsImV4cCI6MjA5MzM0MzkyNX0.t4clOFdWuPu-9gCxU_50Nf9kNlT6Qut8Hv85FIYH6Pc"
+                                                                                                                                                                                                                                                                  add_env_var "OPENAI_API_KEY" "${{ secrets.OPENAI_KEY }}"
+                                                                                                                                                                                                                                                                            add_env_var "WEBHOOK_SECRET" "devo2026secret"
+                                                                                                                                                                                                                                                                                      add_env_var "CRON_SECRET" "cron2026secret"
+                                                                                                                                                                                                                                                                                                add_env_var "ZAPI_INSTANCE_ID" "3F29265543BCD1B34FAA12DF64D7129F"
+                                                                                                                                                                                                                                                                                                          add_env_var "ZAPI_TOKEN" "9AD8213337ABEF9C2F573EEC"
+                                                                                                                                                                                                                                                                                                                    add_env_var "ZAPI_CLIENT_TOKEN" "Fca4db9a5d5be4e60963d9c903f75aae6S"
+                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                              echo "=== Concluido ==="
+                                                                                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                                                                                    - name: Verificar variaveis cadastradas
+                                                                                                                                                                                                                                                                                                                                            run: |
+                                                                                                                                                                                                                                                                                                                                                      TOKEN="${{ secrets.VERCEL_TOKEN }}"
+                                                                                                                                                                                                                                                                                                                                                                TEAM_SLUG="joaolsouza1407-pngs-projects"
+                                                                                                                                                                                                                                                                                                                                                                          PROJECT_NAME="devocionalai"
+                                                                                                                                                                                                                                                                                                                                                                                    echo "=== Listando variaveis ==="
+                                                                                                                                                                                                                                                                                                                                                                                              curl -s "https://api.vercel.com/v10/projects/${PROJECT_NAME}/env?teamId=${TEAM_SLUG}" \
+                                                                                                                                                                                                                                                                                                                                                                                                          -H "Authorization: Bearer ${TOKEN}" | python3 -c "import sys,json; data=json.load(sys.stdin); [print(e.get('key','?')) for e in data.get('envs',[])]"
