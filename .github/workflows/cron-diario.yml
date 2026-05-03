@@ -1,0 +1,21 @@
+name: Cron Devocional Diario
+
+on:
+  schedule:
+    # Roda as 07:00 horario de Brasilia (10:00 UTC) todos os dias
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+
+jobs:
+  enviar-devocional:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar API cron da Vercel
+        run: |
+          curl -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            --fail \
+            --silent \
+            --show-error \
+            "https://devocionalai.com/api/cron"
