@@ -1,31 +1,25 @@
 {
-      "version": 2,
-      "crons": [
-              {
-                        "path": "/api/cron",
-                        "schedule": "0 10 * * *"
-              }
-      ],
-      "routes": [
-              {
-                        "src": "/api/whatsapp-incoming",
-                        "methods": ["GET", "POST"],
-                        "dest": "/api/whatsapp-incoming.js"
-              },
-              {
-                        "src": "/api/webhook",
-                        "methods": ["POST"],
-                        "dest": "/api/webhook.js"
-              },
-              {
-                        "src": "/api/onboarding",
-                        "methods": ["GET", "POST"],
-                        "dest": "/api/onboarding.js"
-              },
-              {
-                        "src": "/api/cron",
-                        "methods": ["GET"],
-                        "dest": "/api/cron.js"
-              }
-      ]
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/whatsapp-incoming",
+      "methods": ["GET", "POST"],
+      "dest": "/api/whatsapp-incoming.js"
+    },
+    {
+      "src": "/api/webhook",
+      "methods": ["POST"],
+      "dest": "/api/webhook.js"
+    },
+    {
+      "src": "/api/onboarding",
+      "methods": ["GET", "POST"],
+      "dest": "/api/onboarding.js"
+    },
+    {
+      "src": "/api/cron",
+      "methods": ["GET"],
+      "dest": "/api/cron.js"
+    }
+  ]
 }
