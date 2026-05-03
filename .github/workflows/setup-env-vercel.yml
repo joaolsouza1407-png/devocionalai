@@ -1,0 +1,48 @@
+name: Configurar Variaveis na Vercel
+
+on:
+  workflow_dispatch:
+    inputs:
+      openai_key:
+        description: 'OPENAI_API_KEY (sua chave sk-...)'
+        required: true
+      zapi_instance:
+        description: 'ZAPI_INSTANCE_ID'
+        required: true
+      zapi_token:
+        description: 'ZAPI_TOKEN'
+        required: true
+      zapi_client_token:
+        description: 'ZAPI_CLIENT_TOKEN'
+        required: true
+
+jobs:
+  setup-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Adicionar variaveis de ambiente na Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          # Adiciona cada variavel no ambiente de producao
+          echo "${{ secrets.SUPABASE_URL }}" | vercel env add SUPABASE_URL production --token=$VERCEL_TOKEN --yes
+          echo "${{ secrets.SUPABASE_KEY }}" | vercel env add SUPABASE_KEY production --token=$VERCEL_TOKEN --yes
+          echo "${{ github.event.inputs.openai_key }}" | vercel env add OPENAI_API_KEY production --token=$VERCEL_TOKEN --yes
+          echo "devo2026secret" | vercel env add WEBHOOK_SECRET production --token=$VERCEL_TOKEN --yes
+          echo "cron2026secret" | vercel env add CRON_SECRET production --token=$VERCEL_TOKEN --yes
+          echo "${{ github.event.inputs.zapi_instance }}" | vercel env add ZAPI_INSTANCE_ID production --token=$VERCEL_TOKEN --yes
+          echo "${{ github.event.inputs.zapi_token }}" | vercel env add ZAPI_TOKEN production --token=$VERCEL_TOKEN --yes
+          echo "${{ github.event.inputs.zapi_client_token }}" | vercel env add ZAPI_CLIENT_TOKEN production --token=$VERCEL_TOKEN --yes
+
+      - name: Fazer redeploy na Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          vercel --prod --token=$VERCEL_TOKEN --yes
