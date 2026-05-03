@@ -20,55 +20,42 @@ jobs:
   setup-env:
     runs-on: ubuntu-latest
     steps:
-      - name: Configurar variaveis via Vercel REST API
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      - name: Instalar Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Criar arquivo de link do projeto Vercel
+        run: |
+          mkdir -p .vercel
+          echo '{
+            "projectId": "JppMs0YHMiD2VD1P1HDSxDKQu16",
+            "orgId": "team_ufmPDNKNzrJehGbaKHioQG7p"
+          }' > .vercel/project.json
+          cat .vercel/project.json
+
+      - name: Adicionar variaveis de ambiente via Vercel CLI
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          TEAM_ID: team_ufmPDNKNzrJehGbaKHioQG7p
-          PROJECT_ID: JppMs0YHMiD2VD1P1HDSxDKQu16
         run: |
-          set_env_var() {
-            local key=$1
-            local value=$2
-            RESULT=$(curl -s -X POST "https://api.vercel.com/v10/projects/${PROJECT_ID}/env?teamId=${TEAM_ID}" \
-              -H "Authorization: Bearer ${VERCEL_TOKEN}" \
-              -H "Content-Type: application/json" \
-              -d "{
-                \"key\": \"${key}\",
-                \"value\": \"${value}\",
-                \"type\": \"encrypted\",
-                \"target\": [\"production\"]
-              }")
-            echo "[$key] ${RESULT:0:150}"
+          add_var() {
+            echo "$2" | vercel env add "$1" production --token=$VERCEL_TOKEN --yes 2>&1 | tail -3
           }
+          
+          echo "=== Configurando variaveis ==="
+          add_var SUPABASE_URL "${{ secrets.SUPABASE_URL }}"
+          add_var SUPABASE_KEY "${{ secrets.SUPABASE_KEY }}"
+          add_var OPENAI_API_KEY "${{ github.event.inputs.openai_key }}"
+          add_var WEBHOOK_SECRET "devo2026secret"
+          add_var CRON_SECRET "cron2026secret"
+          add_var ZAPI_INSTANCE_ID "${{ github.event.inputs.zapi_instance }}"
+          add_var ZAPI_TOKEN "${{ github.event.inputs.zapi_token }}"
+          add_var ZAPI_CLIENT_TOKEN "${{ github.event.inputs.zapi_client_token }}"
+          echo "=== Concluido! ==="
 
-          echo "=== Configurando variaveis de ambiente na Vercel ==="
-          set_env_var "SUPABASE_URL" "${{ secrets.SUPABASE_URL }}"
-          set_env_var "SUPABASE_KEY" "${{ secrets.SUPABASE_KEY }}"
-          set_env_var "OPENAI_API_KEY" "${{ github.event.inputs.openai_key }}"
-          set_env_var "WEBHOOK_SECRET" "devo2026secret"
-          set_env_var "CRON_SECRET" "cron2026secret"
-          set_env_var "ZAPI_INSTANCE_ID" "${{ github.event.inputs.zapi_instance }}"
-          set_env_var "ZAPI_TOKEN" "${{ github.event.inputs.zapi_token }}"
-          set_env_var "ZAPI_CLIENT_TOKEN" "${{ github.event.inputs.zapi_client_token }}"
-          echo "=== Variaveis configuradas! ==="
-
-      - name: Acionar redeploy na Vercel
+      - name: Redeploy na Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          TEAM_ID: team_ufmPDNKNzrJehGbaKHioQG7p
-          PROJECT_ID: JppMs0YHMiD2VD1P1HDSxDKQu16
         run: |
-          curl -s -X POST "https://api.vercel.com/v13/deployments?teamId=${TEAM_ID}" \
-            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "name": "devocionalai",
-              "gitSource": {
-                "type": "github",
-                "repoId": "1226159010",
-                "ref": "main"
-              },
-              "target": "production"
-            }' | head -c 300
-          echo ""
-          echo "=== Redeploy acionado! ==="
+          vercel --prod --token=$VERCEL_TOKEN --yes 2>&1 | tail -5
