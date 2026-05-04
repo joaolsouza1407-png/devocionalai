@@ -52,11 +52,11 @@ Quando uma compra for aprovada, o sistema automaticamente:
 
 | Variável | Valor |
 |----------|-------|
-| `SUPABASE_URL` | `https://jajpszbztgkxzevbcpon.supabase.co` |
+| `SUPABASE_URL` | `https://[seu-projeto].supabase.co` |
 | `SUPABASE_KEY` | Chave anon do Supabase |
 | `OPENAI_API_KEY` | Sua chave OpenAI (sk-...) |
-| `WEBHOOK_SECRET` | `devo2026secret` |
-| `CRON_SECRET` | `cron2026secret` |
+| `WEBHOOK_SECRET` | `[defina-um-secret-forte]` |
+| `CRON_SECRET` | `[defina-um-secret-forte]` |
 | `ZAPI_INSTANCE_ID` | ID da instância Z-API |
 | `ZAPI_TOKEN` | Token da Z-API |
 | `ZAPI_CLIENT_TOKEN` | Client token da Z-API |
