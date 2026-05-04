@@ -1,0 +1,18 @@
+# Variáveis de ambiente
+.env
+.env.local
+.env.production
+.env.development
+
+# Dependências
+node_modules/
+
+# Vercel
+.vercel
+
+# Logs
+*.log
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
